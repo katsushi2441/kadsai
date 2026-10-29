@@ -1,0 +1,2 @@
+# 毎朝 7:00 に取得→分析→通知（crontab -e に貼る。パスは環境に合わせる）
+0 7 * * * cd /opt/kadsai && . ./.env && /usr/bin/python3 -m kadsai run >> outputs/run.log 2>&1

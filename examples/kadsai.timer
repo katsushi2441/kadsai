@@ -1,0 +1,9 @@
+[Unit]
+Description=kadsai を毎朝 7:00 に動かす
+
+[Timer]
+OnCalendar=*-*-* 07:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

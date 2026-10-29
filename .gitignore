@@ -1,0 +1,9 @@
+kadsai.json
+google-ads.yaml
+.env
+*.db
+*.db-journal
+outputs/*
+!outputs/.gitkeep
+__pycache__/
+*.pyc

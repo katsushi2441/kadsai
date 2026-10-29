@@ -1,0 +1,8 @@
+[Unit]
+Description=Kurage 広告AI分析 kadsai 毎朝の日報
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/kadsai
+EnvironmentFile=/opt/kadsai/.env
+ExecStart=/usr/bin/python3 -m kadsai run
