@@ -42,6 +42,16 @@ def collect(cfg, date_str, findings):
     return added, items
 
 
+def add_manual(cfg, kind, params, reason):
+    """画面や手作業で足す提案。"""
+    items = load(cfg)
+    nid = max([i["id"] for i in items], default=0) + 1
+    items.append(dict(id=nid, date=dt.date.today().isoformat(), status="pending", kind=kind, params=dict(kind=kind, **params),
+                      reason=reason, created=dt.datetime.now().isoformat(timespec="seconds")))
+    save(cfg, items)
+    return nid
+
+
 def _key(p):
     params = p.get("params", p)
     return (str(params.get("campaign_id", "")), str(params.get("keyword", "")), str(params.get("adgroup_id", "")),

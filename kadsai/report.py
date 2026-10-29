@@ -110,7 +110,7 @@ HTML_HEAD = """<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta 
 body{{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans JP","Hiragino Sans",sans-serif;line-height:1.7}}
 main{{max-width:900px;margin:0 auto;padding:24px 16px}}h1{{font-size:22px;margin:0 0 4px}}h2{{font-size:17px;margin:28px 0 8px;border-left:4px solid #4f8ad6;padding-left:10px}}
 .kpi{{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}}.kpi div{{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}}
-.kpi b{{display:block;font-size:20px}}.kpi small{{color:var(--muted)}}table{{border-collapse:collapse;width:100%;font-size:14px}}th,td{{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}}td.n,th.n{{text-align:right}}
+.kpi b{{display:block;font-size:20px}}.tw{{overflow-x:auto}}.kpi small{{color:var(--muted)}}table{{border-collapse:collapse;width:100%;font-size:14px}}th,td{{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}}td.n,th.n{{text-align:right}}
 .f{{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0;background:#fff}}.f .tag{{display:inline-block;font-size:12px;color:#fff;border-radius:4px;padding:1px 8px;margin-right:6px}}
 .high{{background:var(--high)}}.mid{{background:var(--mid)}}.low{{background:var(--low)}}.f h3{{margin:4px 0;font-size:15px}}.f p{{margin:4px 0}}.sug{{color:var(--muted)}}
 .ai{{background:#eef5ff;border:1px solid #cfe0fb;border-radius:10px;padding:12px 14px;white-space:pre-wrap}}footer{{color:var(--muted);font-size:12px;margin-top:32px}}
@@ -118,11 +118,19 @@ main{{max-width:900px;margin:0 auto;padding:24px 16px}}h1{{font-size:22px;margin
 
 
 def html_report(cfg, summary, findings, ai_text=None):
+    """単体で開ける HTML（日報ファイル）。"""
+    title = f"広告日報 {summary['date']}" + (f"（{cfg.account_name}）" if cfg.account_name else "")
+    return (HTML_HEAD.format(title=html.escape(title)) + f"<h1>{html.escape(title)}</h1><p style='color:var(--muted);margin:0'>Kurage 広告AI分析 kadsai</p>"
+            + html_body(cfg, summary, findings, ai_text)
+            + "<footer>Kurage 広告AI分析 kadsai。数字は Google 広告の実績から規則で集計したものです。AI の要点は、この数字を言い換えたものです。</footer></main></body></html>")
+
+
+def html_body(cfg, summary, findings, ai_text=None):
+    """日報の中身だけ（画面にも日報ファイルにも使う）。"""
     s = summary
     u = cfg.currency
     e = html.escape
-    title = f"広告日報 {s['date']}" + (f"（{cfg.account_name}）" if cfg.account_name else "")
-    out = [HTML_HEAD.format(title=e(title)), f"<h1>{e(title)}</h1><p style='color:var(--muted);margin:0'>Kurage 広告AI分析 kadsai</p>"]
+    out = []
     if ai_text:
         out.append(f"<h2>要点（AI）</h2><div class='ai'>{e(ai_text.strip())}</div>")
     d, c, p = s["day"], s["current"], s["previous"]
@@ -136,10 +144,10 @@ def html_report(cfg, summary, findings, ai_text=None):
                f"<div><small>コンバージョン</small><b>{_n(c['conversions'])}</b><small>{e(_delta(c['conversions'], p['conversions']))}</small></div>"
                f"<div><small>1件あたり費用</small><b>{(_n(c['cpa']) + u) if c['cpa'] else '-'}</b></div></div>")
     if s["campaigns"]:
-        out.append("<h3>キャンペーン別</h3><table><tr><th>キャンペーン</th><th class=n>費用</th><th class=n>クリック</th><th class=n>CV</th><th class=n>1件あたり</th><th>状態</th></tr>")
+        out.append("<h3>キャンペーン別</h3><div class=tw><table><tr><th>キャンペーン</th><th class=n>費用</th><th class=n>クリック</th><th class=n>CV</th><th class=n>1件あたり</th><th>状態</th></tr>")
         for cc in s["campaigns"]:
             out.append(f"<tr><td>{e(cc['campaign_name'])}</td><td class=n>{_n(cc['cost'])}</td><td class=n>{_n(cc['clicks'])}</td><td class=n>{_n(cc['conversions'])}</td><td class=n>{_n(cc['cpa']) if cc['cpa'] else '-'}</td><td>{e(cc['status'])}</td></tr>")
-        out.append("</table>")
+        out.append("</table></div>")
     out.append(f"<h2>指摘（{len(findings)}件）</h2>")
     if not findings:
         out.append("<p>指摘はありません。</p>")
@@ -147,28 +155,27 @@ def html_report(cfg, summary, findings, ai_text=None):
         out.append(f"<div class='f'><span class='tag {f['severity']}'>{SEV_LABEL[f['severity']]}</span><small>{e(KIND_LABEL.get(f['kind'], f['kind']))}</small>"
                    f"<h3>{e(f['title'])}</h3><p>{e(f['detail'])}</p>" + (f"<p class='sug'>対応: {e(f['suggestion'])}</p>" if f.get("suggestion") else "") + "</div>")
     if s.get("top_search_terms"):
-        out.append("<h2>成果が出た検索語</h2><table><tr><th>検索語</th><th class=n>CV</th><th class=n>クリック</th><th class=n>費用</th></tr>")
+        out.append("<h2>成果が出た検索語</h2><div class=tw><table><tr><th>検索語</th><th class=n>CV</th><th class=n>クリック</th><th class=n>費用</th></tr>")
         for t in s["top_search_terms"]:
             out.append(f"<tr><td>{e(t['search_term'])}</td><td class=n>{_n(t['conversions'])}</td><td class=n>{_n(t['clicks'])}</td><td class=n>{_n(t['cost'])}</td></tr>")
-        out.append("</table>")
+        out.append("</table></div>")
     if s.get("wasted_search_terms"):
-        out.append("<h2>成果ゼロの検索語（除外候補）</h2><table><tr><th>検索語</th><th class=n>費用</th><th class=n>クリック</th><th>キャンペーン</th></tr>")
+        out.append("<h2>成果ゼロの検索語（除外候補）</h2><div class=tw><table><tr><th>検索語</th><th class=n>費用</th><th class=n>クリック</th><th>キャンペーン</th></tr>")
         for t in s["wasted_search_terms"]:
             out.append(f"<tr><td>{e(t['search_term'])}</td><td class=n>{_n(t['cost'])}</td><td class=n>{_n(t['clicks'])}</td><td>{e(t['campaign_name'])}</td></tr>")
-        out.append("</table>")
+        out.append("</table></div>")
     if s.get("hours"):
         mx = max((h["cost"] for h in s["hours"]), default=0) or 1
-        out.append("<h2>時間帯別（費用）</h2><table>")
+        out.append("<h2>時間帯別（費用）</h2><div class=tw><table>")
         for h in s["hours"]:
             w = int(h["cost"] / mx * 100)
             out.append(f"<tr><td style='width:3em'>{h['hour']}時</td><td><div style='background:#4f8ad6;height:10px;width:{w}%'></div></td><td class=n style='width:7em'>{_n(h['cost'])}{u}</td><td class=n style='width:5em'>CV {_n(h['conversions'])}</td></tr>")
-        out.append("</table>")
+        out.append("</table></div>")
     if s.get("geo"):
-        out.append("<h2>地域別（費用の多い順）</h2><p style='color:var(--muted)'>市区町村まで分かった分だけの集計です。</p><table><tr><th>地域</th><th class=n>費用</th><th class=n>クリック</th><th class=n>CV</th></tr>")
+        out.append("<h2>地域別（費用の多い順）</h2><p style='color:var(--muted)'>市区町村まで分かった分だけの集計です。</p><div class=tw><table><tr><th>地域</th><th class=n>費用</th><th class=n>クリック</th><th class=n>CV</th></tr>")
         for g in s["geo"][:15]:
             out.append(f"<tr><td>{e(g['geo_name'])}</td><td class=n>{_n(g['cost'])}</td><td class=n>{_n(g['clicks'])}</td><td class=n>{_n(g['conversions'])}</td></tr>")
-        out.append("</table>")
-    out.append("<footer>Kurage 広告AI分析 kadsai。数字は Google 広告の実績から規則で集計したものです。AI の要点は、この数字を言い換えたものです。</footer></main></body></html>")
+        out.append("</table></div>")
     return "\n".join(out)
 
 

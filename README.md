@@ -21,6 +21,15 @@ cp examples/env.example .env      # 秘密は .env に（権限 600）
 
 `kadsai.json` に `customer_id`（広告の口座 ID）と `google_ads_yaml`（Google Ads API の設定ファイル）を書きます。管理者アカウント経由なら `login_customer_id` も書きます。
 
+## 画面（ダッシュボード）
+
+```
+python3 -m kadsai web --host 0.0.0.0 --port 8080
+```
+
+ブラウザで開くと、ダッシュボード（昨日・7日・30日の実績、日別のグラフ、指摘、キャンペーン別、承認待ち）、日報（日付で切替）、検索語（期間・絞り込み・並び替え、「除外候補に」ボタン）、キーワード（品質スコア・入札と1ページ目の目安）、提案と承認（承認して実行／却下）、時間帯（曜日×時間帯の濃淡）、地域、設定（今すぐ取得して分析）の8ページです。
+ログインは `.env` の `KADSAI_WEB_PASSWORD`（空なら認証なし。社内 LAN 限定のときだけ）。標準ライブラリだけで動き、リンクはすべて相対パスなので、透過プロキシのサブパス（`/kadsai.php/` など）の下でも動きます。中継 PHP の例は `php/kadsai.php`。常駐は `examples/kadsai-web.service`。
+
 ## 使い方
 
 ```

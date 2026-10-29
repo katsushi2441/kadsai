@@ -123,6 +123,12 @@ def cmd_proposals(args):
         print(f"#{it['id']} [{it['status']}] {it['kind']} {json.dumps(it['params'], ensure_ascii=False)}\n   {it['reason']}")
 
 
+def cmd_web(args):
+    from .web import serve
+    cfg = _cfg(args)
+    serve(cfg, host=args.host, port=args.port)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="kadsai", description="Kurage 広告AI分析。Google 広告を取得し、規則で分析して日報を出す。")
     ap.add_argument("-c", "--config", default="kadsai.json")
@@ -147,6 +153,9 @@ def main(argv=None):
     p = sp.add_parser("proposals", help="設定変更の提案を見る・承認して実行する・却下する")
     p.add_argument("--all", action="store_true"); p.add_argument("--apply", nargs="*", type=int, metavar="ID")
     p.add_argument("--reject", nargs="*", type=int, metavar="ID"); p.add_argument("--dry-run", action="store_true"); p.set_defaults(fn=cmd_proposals)
+
+    p = sp.add_parser("web", help="画面（ダッシュボード）を起動する")
+    p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8080); p.set_defaults(fn=cmd_web)
 
     args = ap.parse_args(argv)
     args.fn(args)

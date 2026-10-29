@@ -1,0 +1,13 @@
+[Unit]
+Description=Kurage 広告AI分析 kadsai 画面
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/kadsai
+EnvironmentFile=/opt/kadsai/.env
+ExecStart=/usr/bin/python3 -m kadsai web --host 0.0.0.0 --port 8080
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

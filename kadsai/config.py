@@ -71,6 +71,12 @@ EXAMPLE = {
         "channel_access_token_env": "LINE_CHANNEL_ACCESS_TOKEN",
         "to": [],
     },
+    "web": {
+        "password": "",
+        "password_env": "KADSAI_WEB_PASSWORD",
+        "host": "127.0.0.1",
+        "port": 8080,
+    },
     "email": {
         "enabled": False,
         "smtp_host": "",
