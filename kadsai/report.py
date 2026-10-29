@@ -104,7 +104,7 @@ def short_text(cfg, summary, findings, ai_text=None, limit=1800):
     return text if len(text) <= limit else text[:limit - 1] + "…"
 
 
-HTML_HEAD = """<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+HTML_HEAD = """<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
 <title>{title}</title><style>
 :root{{--ink:#1f2a37;--muted:#5b6774;--line:#e3e8ee;--bg:#fff;--card:#f6f8fa;--high:#c0392b;--mid:#d68910;--low:#2e86c1}}
 body{{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans JP","Hiragino Sans",sans-serif;line-height:1.7}}
