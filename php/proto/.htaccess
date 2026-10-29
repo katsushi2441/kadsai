@@ -1,0 +1,12 @@
+AddHandler php-script .php
+AddDefaultCharset UTF-8
+DirectoryIndex index.php index.html
+<FilesMatch "^kadsai_config\.php$">
+  Require all denied
+</FilesMatch>
+RewriteEngine On
+RewriteBase /kadsai/
+# /kadsai/ 以下の全パスを index.php の PATH_INFO に渡す（実在するファイル・フォルダはそのまま）
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L,QSA]

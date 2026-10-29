@@ -7,3 +7,5 @@ outputs/*
 !outputs/.gitkeep
 __pycache__/
 *.pyc
+php/kadsai_config.php
+php/proto/kadsai_config.php
